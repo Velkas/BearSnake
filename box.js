@@ -147,7 +147,7 @@ class Box {
       fill(255);
       strokeWeight(4);
       stroke(0);
-      text(this.hitCount, this.pos.x + 10, this.pos.y + 48);
+      //text(this.hitCount, this.pos.x + 10, this.pos.y + 48);
     }
   }
 }
