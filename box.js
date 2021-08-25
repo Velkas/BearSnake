@@ -5,62 +5,55 @@ class Box {
     this.size = createVector(this.img.width, this.img.height);
     this.hitCount = 0;
     this.maxSpeed = 4;
-    this.minSpeed = -4;
+    this.minMaxOffset = 0.2;
+    this.bounceOffsetRange = 2;
     this.tint = 127;
-    this.counter = 6000;
+    this.counter = 8000;
     this.blinkCounter = 45000;
     // starting direction should be random
     this.vel = createVector(
       random(1) >= 0.5
-        ? random(this.minSpeed * -1, this.maxSpeed) + random(-0.01, 0.01)
-        : -random(this.minSpeed * -1, this.maxSpeed) + random(-0.01, 0.01),
+        ? random(-this.maxSpeed * -1, this.maxSpeed) + random(-0.01, 0.01)
+        : -random(-this.maxSpeed * -1, this.maxSpeed) + random(-0.01, 0.01),
       random(1) >= 0.5
-        ? random(this.minSpeed * -1, this.maxSpeed) + random(-0.01, 0.01)
-        : -random(this.minSpeed * -1, this.maxSpeed) + random(-0.01, 0.01)
+        ? random(-this.maxSpeed * -1, this.maxSpeed) + random(-0.01, 0.01)
+        : -random(-this.maxSpeed * -1, this.maxSpeed) + random(-0.01, 0.01)
     );
     this.flashing = false;
     this.detecting = true;
+    this.reverseImage;
   }
 
   move() {
-    // if x negative, make sure its not too slow or fast
-    if (this.vel.x < 0) {
-      if (this.vel.x < this.minSpeed - 0.5) {
-        this.vel.x = this.minSpeed;
-      }
-      if (this.vel.x > this.minSpeed + 1.5) {
-        this.vel.x = this.minSpeed + 1;
-      }
+    // clamp the values in a donut shape so its never too slow or too fast
+    if (this.vel.x >= 0) {
+      this.vel.x = this.clamp(
+        this.vel.x,
+        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
+        this.maxSpeed + this.maxSpeed * this.minMaxOffset
+      );
+    } else {
+      this.vel.x = this.clamp(
+        Math.abs(this.vel.x),
+        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
+        this.maxSpeed + this.maxSpeed * this.minMaxOffset
+      );
+      this.vel.x *= -1;
     }
 
-    // if x positive, make sure its not too slow or fast
-    if (this.vel.x > 0) {
-      if (this.vel.x > this.maxSpeed + 0.5) {
-        this.vel.x = this.maxSpeed;
-      }
-      if (this.vel.x < this.maxSpeed - 1.5) {
-        this.vel.x = this.maxSpeed - 1;
-      }
-    }
-
-    // if y negative, make sure its not too slow or fast
-    if (this.vel.y < 0) {
-      if (this.vel.y < this.minSpeed - 0.5) {
-        this.vel.y = this.minSpeed;
-      }
-      if (this.vel.y > this.minSpeed + 1.5) {
-        this.vel.y = this.minSpeed + 1;
-      }
-    }
-
-    // if y positive, make sure its not too slow or fast
-    if (this.vel.y > 0) {
-      if (this.vel.y > this.maxSpeed + 0.5) {
-        this.vel.y = this.maxSpeed;
-      }
-      if (this.vel.y < this.maxSpeed - 1.5) {
-        this.vel.y = this.maxSpeed - 1;
-      }
+    if (this.vel.y >= 0) {
+      this.vel.y = this.clamp(
+        this.vel.y,
+        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
+        this.maxSpeed + this.maxSpeed * this.minMaxOffset
+      );
+    } else {
+      this.vel.y = this.clamp(
+        Math.abs(this.vel.y),
+        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
+        this.maxSpeed + this.maxSpeed * this.minMaxOffset
+      );
+      this.vel.y *= -1;
     }
 
     // do the move
@@ -72,23 +65,17 @@ class Box {
     var hitUD = false;
 
     // check X bounds
-    if (
-      this.pos.x - this.size.x < 0 - this.size.x ||
-      this.pos.x + this.size.x > width
-    ) {
+    if (this.pos.x - this.size.x < 0 - this.size.x || this.pos.x + this.size.x > width) {
       this.vel.x *= -1;
-      this.vel.x += random(-0.1, 0.1);
+      this.vel.x += random(-this.bounceOffsetRange, this.bounceOffsetRange);
       this.pos.x = this.pos.x <= 0 + this.size.x ? 1 : width - this.size.x - 1;
       hitLR = true;
     }
 
     // check Y bounds
-    if (
-      this.pos.y - this.size.y < 0 - this.size.y ||
-      this.pos.y + this.size.y > height
-    ) {
+    if (this.pos.y - this.size.y < 0 - this.size.y || this.pos.y + this.size.y > height) {
       this.vel.y *= -1;
-      this.vel.y += random(-0.1, 0.1);
+      this.vel.y += random(-this.bounceOffsetRange, this.bounceOffsetRange);
       this.pos.y = this.pos.y - this.size.y < 0 ? 1 : height - this.size.y - 1;
       hitUD = true;
     }
@@ -101,21 +88,10 @@ class Box {
     }
   }
 
-  blink() {
-    // reset the gif counter if its complete
-    if (this.blinkCounter <= 0) {
-      this.img.reset();
-      this.blinkCounter = 45000;
-      print("blinking");
-    }
-
-    this.blinkCounter -= 60;
-  }
-
   update() {
+    this.reverseImage = this.vel.x < 0;
     this.hit();
     this.move();
-    //this.blink();
 
     // flash counter is up
     if (this.counter <= 0) {
@@ -138,16 +114,15 @@ class Box {
       noTint();
     }
 
-    // draw the maggles
-    image(this.img, this.pos.x, this.pos.y, this.size.x, this.size.y);
+    push();
+    imageMode(CENTER);
+    translate(this.pos.x + this.img.width / 2, this.pos.y + this.img.height / 2);
+    scale(this.reverseImage ? -1 : 1, 1);
+    image(this.img, 0, 0, this.size.x, this.size.y);
+    pop();
+  }
 
-    // draw the counter so we know how many happened
-    if (this.hitCount > 0) {
-      textSize(32);
-      fill(255);
-      strokeWeight(4);
-      stroke(0);
-      //text(this.hitCount, this.pos.x + 10, this.pos.y + 48);
-    }
+  clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
   }
 }
