@@ -72,12 +72,14 @@ class Box {
     if (hitL || hitR) {
       this.vel.x *= -1;
       this.vel.x += random(-this.randJitter, this.randJitter);
+      this.vel.y += random(-this.randJitter, this.randJitter);
       this.pos.x = this.pos.x <= 0 + this.size.x ? 1 : width - this.size.x - 1;
     }
 
     // check Y bounds
     if (hitU || hitD) {
       this.vel.y *= -1;
+      this.vel.x += random(-this.randJitter, this.randJitter);
       this.vel.y += random(-this.randJitter, this.randJitter);
       this.pos.y = this.pos.y - this.size.y < 0 ? 1 : height - this.size.y - 1;
     }
