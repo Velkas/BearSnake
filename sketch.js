@@ -1,7 +1,7 @@
 let box = [];
 let img;
 let maxBoxes = 10;
-let imgScale = 1.5;
+let imgScale = 0.8;
 function preload() {
   img = loadImage("bears.png");
 }
