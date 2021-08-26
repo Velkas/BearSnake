@@ -6,7 +6,7 @@ class Box {
     this.hitCount = 0;
     this.maxSpeed = 4;
     this.minMaxOffset = 0.3;
-    this.randJitter = 0.15;
+    this.randJitter = 1;
     this.bounceOffsetRange = 2;
     this.tint = 127;
     this.counter = 8000;
