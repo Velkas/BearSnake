@@ -41,7 +41,7 @@ function spawnAtLocation(location) {
   newBox.counter = 10;
   newBox.vel.x += random(-1, 1);
   newBox.vel.y += random(-1, 1);
-  box.push(newBox);
+  box.unshift(newBox);
 }
 
 function windowResized() {
