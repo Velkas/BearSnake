@@ -5,7 +5,8 @@ class Box {
     this.size = createVector(this.img.width, this.img.height);
     this.hitCount = 0;
     this.maxSpeed = 4;
-    this.minMaxOffset = 0.2;
+    this.minMaxOffset = 0.3;
+    this.randJitter = 0.15;
     this.bounceOffsetRange = 2;
     this.tint = 127;
     this.counter = 8000;
@@ -22,6 +23,7 @@ class Box {
     this.flashing = false;
     this.detecting = true;
     this.reverseImage;
+    this.corner = [false, false, false, false]; // LU, RU, LD, RD
   }
 
   move() {
@@ -61,30 +63,48 @@ class Box {
   }
 
   hit() {
-    var hitLR = false;
-    var hitUD = false;
+    let hitL = this.pos.x - this.size.x < 0 - this.size.x;
+    let hitR = this.pos.x + this.size.x > width;
+    let hitU = this.pos.y - this.size.y < 0 - this.size.y;
+    let hitD = this.pos.y + this.size.y > height;
 
     // check X bounds
-    if (this.pos.x - this.size.x < 0 - this.size.x || this.pos.x + this.size.x > width) {
+    if (hitL || hitR) {
       this.vel.x *= -1;
-      this.vel.x += random(-this.bounceOffsetRange, this.bounceOffsetRange);
+      this.vel.x += random(-this.randJitter, this.randJitter);
       this.pos.x = this.pos.x <= 0 + this.size.x ? 1 : width - this.size.x - 1;
-      hitLR = true;
     }
 
     // check Y bounds
-    if (this.pos.y - this.size.y < 0 - this.size.y || this.pos.y + this.size.y > height) {
+    if (hitU || hitD) {
       this.vel.y *= -1;
-      this.vel.y += random(-this.bounceOffsetRange, this.bounceOffsetRange);
+      this.vel.y += random(-this.randJitter, this.randJitter);
       this.pos.y = this.pos.y - this.size.y < 0 ? 1 : height - this.size.y - 1;
-      hitUD = true;
     }
 
-    // we hit the corner! special surprise :)
-    if (hitLR && hitUD && this.detecting) {
+    // we hit a corner! special surprise :)
+    if (this.detecting && ((hitL && hitU) || (hitL && hitD) || (hitR && hitU) || (hitR && hitD))) {
       this.hitCount++;
       this.flashing = true;
       this.detecting = false;
+
+      this.corner[0] = hitL && hitU;
+      this.corner[1] = hitR && hitU;
+      this.corner[2] = hitL && hitD;
+      this.corner[3] = hitR && hitD;
+
+      if (this.corner[0]) {
+        spawnAtLocation(createVector(1, 1));
+      }
+      if (this.corner[1]) {
+        spawnAtLocation(createVector(width - 1, 1));
+      }
+      if (this.corner[2]) {
+        spawnAtLocation(createVector(1, height - 1));
+      }
+      if (this.corner[3]) {
+        spawnAtLocation(createVector(width - 1, height - 1));
+      }
     }
   }
 
@@ -112,6 +132,8 @@ class Box {
     // flashing is done
     else {
       noTint();
+
+      this.corner = [false, false, false, false];
     }
 
     push();
