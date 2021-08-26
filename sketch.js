@@ -30,6 +30,7 @@ function draw() {
 
 function spawnAtLocation(location) {
   if (box.length + 1 > maxBoxes) {
+    return;
     box.splice(0, 1);
   }
 
