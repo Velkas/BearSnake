@@ -1,15 +1,24 @@
 let box = [];
 let img;
-let maxBoxes = 10;
+let cnv;
+let maxBears = 10;
+let flashTime = null;
 let imgScale = 0.8;
+let bearSpeed = null;
 function preload() {
   img = loadImage("bears.png");
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  cnv = createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
   frameRate(60);
+
+  let props = window.getComputedStyle(cnv.elt, null);
+  imgScale = props.getPropertyValue("--bearResize");
+  maxBears = props.getPropertyValue("--maxBears");
+  flashTime = props.getPropertyValue("--flashTime");
+  bearSpeed = props.getPropertyValue("--bearMaxSpeed");
 
   img.resize(img.width * imgScale, img.height * imgScale);
 
@@ -29,7 +38,7 @@ function draw() {
 }
 
 function spawnAtLocation(location) {
-  if (box.length + 1 > maxBoxes) {
+  if (box.length + 1 > maxBears) {
     return;
     box.splice(0, 1);
   }
@@ -39,7 +48,7 @@ function spawnAtLocation(location) {
   let newBox = new Box(x, y, img);
   newBox.detecting = false;
   newBox.flashing = true;
-  newBox.counter = 10;
+  newBox.flashCounter = 10;
   newBox.vel.x += random(-1, 1);
   newBox.vel.y += random(-1, 1);
   box.unshift(newBox);
