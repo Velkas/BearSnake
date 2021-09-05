@@ -1,6 +1,7 @@
 let box = [];
 let img;
 let cnv;
+let clearCanvas = false;
 let maxBears = 10;
 let flashTime = null;
 let imgScale = 0.8;
@@ -15,10 +16,12 @@ function setup() {
   frameRate(60);
 
   let props = window.getComputedStyle(cnv.elt, null);
+
   imgScale = props.getPropertyValue("--bearResize");
   maxBears = props.getPropertyValue("--maxBears");
   flashTime = props.getPropertyValue("--flashTime");
   bearSpeed = props.getPropertyValue("--bearMaxSpeed");
+  props.getPropertyValue("--trails") == 0 ? (clearCanvas = true) : (clearCanvas = false);
 
   img.resize(img.width * imgScale, img.height * imgScale);
 
@@ -28,8 +31,11 @@ function setup() {
 
 function draw() {
   colorMode(RGB);
-  //clear();
-  background(0, 0, 0, 0);
+  if (clearCanvas) {
+    clear();
+  } else {
+    background(0, 0, 0, 0);
+  }
 
   for (let b of box) {
     b.update();
