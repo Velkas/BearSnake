@@ -34,21 +34,21 @@ class Box {
       this.maxSpeed - this.maxSpeed * this.minMaxOffset,
       this.maxSpeed + this.maxSpeed * this.minMaxOffset
     );
-    this.vel.x < 0 ? (this.vel.x = xClamp * -1) : null;
+    this.vel.x < 0 ? (this.vel.x = xClamp * -1) : (this.vel.x = xClamp);
 
     let yClamp = this.clamp(
       Math.abs(this.vel.y),
       this.maxSpeed - this.maxSpeed * this.minMaxOffset,
       this.maxSpeed + this.maxSpeed * this.minMaxOffset
     );
-    this.vel.y < 0 ? (this.vel.y = yClamp * -1) : null;
+    this.vel.y < 0 ? (this.vel.y = yClamp * -1) : (this.vel.y = xClamp);
 
     let xDeltaAdj = this.clamp(
       Math.abs(this.vel.x),
       Math.abs(this.vel.y) - this.maxSpeedDiff,
       Math.abs(this.vel.y) + this.maxSpeedDiff
     );
-    this.vel.x < 0 ? (this.vel.x = xDeltaAdj * -1) : null;
+    this.vel.x < 0 ? (this.vel.x = xDeltaAdj * -1) : (this.vel.x = xDeltaAdj);
 
     // do the move
     this.pos = p5.Vector.add(this.pos, this.vel);
