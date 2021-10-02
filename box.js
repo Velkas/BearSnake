@@ -6,6 +6,7 @@ class Box {
     this.hitCount = 0;
     this.maxSpeed = bearSpeed || 4;
     this.minMaxOffset = 0.3;
+    this.maxSpeedDiff = 2;
     this.randJitter = 1;
     this.bounceOffsetRange = 2;
     this.tint = 127;
@@ -28,35 +29,26 @@ class Box {
 
   move() {
     // clamp the values in a donut shape so its never too slow or too fast
-    if (this.vel.x >= 0) {
-      this.vel.x = this.clamp(
-        this.vel.x,
-        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
-        this.maxSpeed + this.maxSpeed * this.minMaxOffset
-      );
-    } else {
-      this.vel.x = this.clamp(
-        Math.abs(this.vel.x),
-        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
-        this.maxSpeed + this.maxSpeed * this.minMaxOffset
-      );
-      this.vel.x *= -1;
-    }
+    let xClamp = this.clamp(
+      Math.abs(this.vel.x),
+      this.maxSpeed - this.maxSpeed * this.minMaxOffset,
+      this.maxSpeed + this.maxSpeed * this.minMaxOffset
+    );
+    this.vel.x < 0 ? (this.vel.x = xClamp * -1) : null;
 
-    if (this.vel.y >= 0) {
-      this.vel.y = this.clamp(
-        this.vel.y,
-        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
-        this.maxSpeed + this.maxSpeed * this.minMaxOffset
-      );
-    } else {
-      this.vel.y = this.clamp(
-        Math.abs(this.vel.y),
-        this.maxSpeed - this.maxSpeed * this.minMaxOffset,
-        this.maxSpeed + this.maxSpeed * this.minMaxOffset
-      );
-      this.vel.y *= -1;
-    }
+    let yClamp = this.clamp(
+      Math.abs(this.vel.y),
+      this.maxSpeed - this.maxSpeed * this.minMaxOffset,
+      this.maxSpeed + this.maxSpeed * this.minMaxOffset
+    );
+    this.vel.y < 0 ? (this.vel.y = yClamp * -1) : null;
+
+    let xDeltaAdj = this.clamp(
+      Math.abs(this.vel.x),
+      Math.abs(this.vel.y) - this.maxSpeedDiff,
+      Math.abs(this.vel.y) + this.maxSpeedDiff
+    );
+    this.vel.x < 0 ? (this.vel.x = xDeltaAdj * -1) : null;
 
     // do the move
     this.pos = p5.Vector.add(this.pos, this.vel);
